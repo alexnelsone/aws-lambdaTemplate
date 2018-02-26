@@ -1,0 +1,100 @@
+# aws cloudformation package --template-file template.yml --output-template-file serverless_output.yml --s3-bucket BUCKETNAME --s3-prefix lambda/APPLICATIONNAME/deploy/
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  environment:
+    Description: Development Envrionment Name
+    Type: String
+    Default: dev
+    AllowedValues:
+    - dev
+    - stage
+    - qa
+    - prod
+  lambdaFunctionName:
+    Type: String
+    Default: 'MODIFY_ME'
+    
+  lambdaHandler:
+    Type: String
+    Default: MODIFY_ME
+    
+  runTime:
+    Type: String
+    Default: python2.7
+    
+  lambdaDescription:
+    Type: String
+    Default: "MODIFY_ME"
+    
+  lambdaRole: 
+    Type: String
+    Default: 'arn:aws:iam::XXXXX:role/lambda-role'
+
+# TAGS
+  costCenter:
+    Type: String
+    Default: 'nelsone'
+      
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Lambda Configuration
+      Parameters:
+      - environment
+      - lambdaFunctionName
+      - lambdaHandler
+      - lambdaDescription
+      - runTime
+      - lambdaRole
+    - Label:
+        default: "Tags"
+      Parameters:
+        - costCenter
+    ParameterLabels:
+      environment:
+        default: 'Environment where this bucket is being used'
+      lambdaFunctionName:
+        default: 'Name of the lambda function'
+      lambdaHandler:
+        default: 'The name of the lambda handler'
+      lambdaDescription:
+        default: 'Description for the lambda function'
+      runTime: 
+        default: 'Runtime to use for lambda'
+      lambdaRole:
+        default: 'Role arn for lambda'
+      costCenter:
+        default: 'CostCenter'
+
+
+Resources:
+  lambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Ref lambdaFunctionName
+      Description: !Ref lambdaDescription
+      Handler: !Ref lambdaHandler
+      Runtime: python2.7
+      Role: !Ref lambdaRole
+      Tags:
+        CostCenter: !Ref costCenter
+
+
+#  ScheduledRule: 
+#    Type: "AWS::Events::Rule"
+#    Properties:
+#      Name: !Ref cloudwatchEventName
+#      Description: "ScheduledRule"
+#      ScheduleExpression: !Ref eventSchedulerCron
+#      State: "ENABLED"
+#      Targets: 
+#      - Arn: !GetAtt lambdaFunction.Arn
+#        Id: "kpg_messenger_schedule"
+      
